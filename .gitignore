@@ -56,3 +56,5 @@ bin
 .project
 target
 .tmpbin
+*.out
+*.vcd
