@@ -138,14 +138,6 @@ class Input_port extends Module {
          Transmission_ongoing := UInt(0)
        }
      }
-      
-  /*when(Header_arrived === UInt(1)) {
-    io.END := UInt(0)
-  }
-  .otherwise {
-    io.END := UInt(1)
-  }*/
- 
 }
 
 class ArbiterUnit extends Module {
