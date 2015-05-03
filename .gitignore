@@ -41,3 +41,17 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+# Generated filed
+*.cpp
+*.h
+*.o
+*.v
+.metadata
+.settings
+bin
+.cache
+.classpath
+.project
+target
