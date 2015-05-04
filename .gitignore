@@ -58,3 +58,6 @@ target
 .tmpbin
 *.out
 *.vcd
+*.scala~
+*.cc
+*.setting

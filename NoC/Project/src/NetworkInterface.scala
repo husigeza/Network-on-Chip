@@ -79,7 +79,7 @@ class NetworkInterface_Input_Port_Processor extends Module {
 
 }
 
-class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: Int) extends Module {
+class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: UInt) extends Module {
   val io = new Bundle {
 
     //IOs to and from INPUT Port
@@ -103,43 +103,43 @@ class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: Int) extends Modu
 
   }
 
-  val Current_Proc_Num = UInt(Current_Proc_Number)
+  val Current_Proc_Num = Current_Proc_Number
 
   /*NODE NUMBERS - COORDINATES*/
-  val Mesh_topology_coordinates_x = Vec.fill(16) { UInt(width = 2) }
-  val Mesh_topology_coordinates_y = Vec.fill(16) { UInt(width = 2) }
-  Mesh_topology_coordinates_x(0) := UInt(0)
-  Mesh_topology_coordinates_y(0) := UInt(0)
-  Mesh_topology_coordinates_x(1) := UInt(1)
-  Mesh_topology_coordinates_y(1) := UInt(0)
-  Mesh_topology_coordinates_x(2) := UInt(2)
-  Mesh_topology_coordinates_y(2) := UInt(0)
-  Mesh_topology_coordinates_x(3) := UInt(3)
-  Mesh_topology_coordinates_y(3) := UInt(0)
-  Mesh_topology_coordinates_x(4) := UInt(0)
-  Mesh_topology_coordinates_y(4) := UInt(1)
-  Mesh_topology_coordinates_x(5) := UInt(1)
-  Mesh_topology_coordinates_y(5) := UInt(1)
-  Mesh_topology_coordinates_x(6) := UInt(2)
-  Mesh_topology_coordinates_y(6) := UInt(1)
-  Mesh_topology_coordinates_x(7) := UInt(3)
-  Mesh_topology_coordinates_y(7) := UInt(1)
-  Mesh_topology_coordinates_x(8) := UInt(0)
-  Mesh_topology_coordinates_y(8) := UInt(2)
-  Mesh_topology_coordinates_x(9) := UInt(1)
-  Mesh_topology_coordinates_y(9) := UInt(2)
-  Mesh_topology_coordinates_x(10) := UInt(2)
-  Mesh_topology_coordinates_y(10) := UInt(2)
-  Mesh_topology_coordinates_x(11) := UInt(3)
-  Mesh_topology_coordinates_y(11) := UInt(2)
-  Mesh_topology_coordinates_x(12) := UInt(0)
-  Mesh_topology_coordinates_y(12) := UInt(3)
-  Mesh_topology_coordinates_x(13) := UInt(1)
-  Mesh_topology_coordinates_y(13) := UInt(3)
-  Mesh_topology_coordinates_x(14) := UInt(2)
-  Mesh_topology_coordinates_y(14) := UInt(3)
-  Mesh_topology_coordinates_x(15) := UInt(3)
-  Mesh_topology_coordinates_y(15) := UInt(3)
+  val Mesh_topology_coordinates_x = Vec.fill(16) { SInt(width = 3) }
+  val Mesh_topology_coordinates_y = Vec.fill(16) { SInt(width = 3) }
+  Mesh_topology_coordinates_x(0) := SInt(0)
+  Mesh_topology_coordinates_y(0) := SInt(0)
+  Mesh_topology_coordinates_x(1) := SInt(1)
+  Mesh_topology_coordinates_y(1) := SInt(0)
+  Mesh_topology_coordinates_x(2) := SInt(2)
+  Mesh_topology_coordinates_y(2) := SInt(0)
+  Mesh_topology_coordinates_x(3) := SInt(3)
+  Mesh_topology_coordinates_y(3) := SInt(0)
+  Mesh_topology_coordinates_x(4) := SInt(0)
+  Mesh_topology_coordinates_y(4) := SInt(1)
+  Mesh_topology_coordinates_x(5) := SInt(1)
+  Mesh_topology_coordinates_y(5) := SInt(1)
+  Mesh_topology_coordinates_x(6) := SInt(2)
+  Mesh_topology_coordinates_y(6) := SInt(1)
+  Mesh_topology_coordinates_x(7) := SInt(3)
+  Mesh_topology_coordinates_y(7) := SInt(1)
+  Mesh_topology_coordinates_x(8) := SInt(0)
+  Mesh_topology_coordinates_y(8) := SInt(2)
+  Mesh_topology_coordinates_x(9) := SInt(1)
+  Mesh_topology_coordinates_y(9) := SInt(2)
+  Mesh_topology_coordinates_x(10) := SInt(2)
+  Mesh_topology_coordinates_y(10) := SInt(2)
+  Mesh_topology_coordinates_x(11) := SInt(3)
+  Mesh_topology_coordinates_y(11) := SInt(2)
+  Mesh_topology_coordinates_x(12) := SInt(0)
+  Mesh_topology_coordinates_y(12) := SInt(3)
+  Mesh_topology_coordinates_x(13) := SInt(1)
+  Mesh_topology_coordinates_y(13) := SInt(3)
+  Mesh_topology_coordinates_x(14) := SInt(2)
+  Mesh_topology_coordinates_y(14) := SInt(3)
+  Mesh_topology_coordinates_x(15) := SInt(3)
+  Mesh_topology_coordinates_y(15) := SInt(3)
   /********************************************/
 
   /*Registers to store the Flits*/
@@ -178,17 +178,20 @@ class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: Int) extends Modu
       InputBuffer_Selector := UInt(0)
     }
 
+    
+  // X coord: Sign bit 0   -> route right, Sign bit 1 -> route left
+  // Y coord: Sign bit 0   -> route down, Sign bit 1 -> route up
   //According to Round Robin grab the data from the input buffers, create the header and the data flits
   when(Output_Buffers_ready === UInt(1)) {
     // INPUT BUFFER 0 is selected
     when(InputBuffer_Selector === UInt(0) && io.InputBuffer_Full_0 === UInt(1)) { //io.InputBuffer_Full_0 === UInt(1) necessary because of the first cycle
       // Create header
       // X coordinate
-      when((Mesh_topology_coordinates_x(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_x(Current_Proc_Num)) > UInt(0)) {
+      when((Mesh_topology_coordinates_x(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_x(Current_Proc_Num)) > SInt(0)) {
         Header_reg(7) := UInt(0)
         Header_reg(6, 5) := (Mesh_topology_coordinates_x(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_x(Current_Proc_Num))
       }
-        .elsewhen((Mesh_topology_coordinates_x(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_x(Current_Proc_Num)) < UInt(0)) {
+        .elsewhen((Mesh_topology_coordinates_x(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_x(Current_Proc_Num)) < SInt(0)) {
           Header_reg(7) := UInt(1)
           Header_reg(6, 5) := (Mesh_topology_coordinates_x(Current_Proc_Num) - Mesh_topology_coordinates_x(io.InputBuffer_Dest_0))
         }
@@ -196,12 +199,12 @@ class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: Int) extends Modu
           Header_reg(7, 5) := UInt(0)
         }
       // Y coordinate
-      when((Mesh_topology_coordinates_y(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_y(Current_Proc_Num)) > UInt(0)) {
-        Header_reg(4) := UInt(0)
+      when((Mesh_topology_coordinates_y(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_y(Current_Proc_Num)) > SInt(0)) {
+        Header_reg(4) := UInt(1)
         Header_reg(3, 2) := (Mesh_topology_coordinates_y(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_y(Current_Proc_Num))
       }
-        .elsewhen((Mesh_topology_coordinates_y(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_y(Current_Proc_Num)) < UInt(0)) {
-          Header_reg(4) := UInt(1)
+        .elsewhen((Mesh_topology_coordinates_y(io.InputBuffer_Dest_0) - Mesh_topology_coordinates_y(Current_Proc_Num)) < SInt(0)) {
+          Header_reg(4) := UInt(0)
           Header_reg(3, 2) := (Mesh_topology_coordinates_y(Current_Proc_Num) - Mesh_topology_coordinates_y(io.InputBuffer_Dest_0))
         }
         .otherwise {
@@ -242,11 +245,11 @@ class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: Int) extends Modu
       .elsewhen(InputBuffer_Selector === UInt(1) && io.InputBuffer_Full_1 === UInt(1)) {
         // Create header
         // X coordinate
-        when((Mesh_topology_coordinates_x(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_x(Current_Proc_Num)) > UInt(0)) {
+        when((Mesh_topology_coordinates_x(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_x(Current_Proc_Num)) > SInt(0)) {
           Header_reg(7) := UInt(0)
           Header_reg(6, 5) := (Mesh_topology_coordinates_x(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_x(Current_Proc_Num))
         }
-          .elsewhen((Mesh_topology_coordinates_x(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_x(Current_Proc_Num)) < UInt(0)) {
+          .elsewhen((Mesh_topology_coordinates_x(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_x(Current_Proc_Num)) < SInt(0)) {
             Header_reg(7) := UInt(1)
             Header_reg(6, 5) := (Mesh_topology_coordinates_x(Current_Proc_Num) - Mesh_topology_coordinates_x(io.InputBuffer_Dest_1))
           }
@@ -254,11 +257,11 @@ class NetworkInterface_Packet_Encapsulate(Current_Proc_Number: Int) extends Modu
             Header_reg(7, 5) := UInt(0)
           }
         // Y coordinate
-        when((Mesh_topology_coordinates_y(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_y(Current_Proc_Num)) > UInt(0)) {
+        when((Mesh_topology_coordinates_y(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_y(Current_Proc_Num)) > SInt(0)) {
           Header_reg(4) := UInt(1)
           Header_reg(3, 2) := (Mesh_topology_coordinates_y(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_y(Current_Proc_Num))
         }
-          .elsewhen((Mesh_topology_coordinates_y(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_y(Current_Proc_Num)) < UInt(0)) {
+          .elsewhen((Mesh_topology_coordinates_y(io.InputBuffer_Dest_1) - Mesh_topology_coordinates_y(Current_Proc_Num)) < SInt(0)) {
             Header_reg(4) := UInt(0)
             Header_reg(3, 2) := (Mesh_topology_coordinates_y(Current_Proc_Num) - Mesh_topology_coordinates_y(io.InputBuffer_Dest_1))
           }
@@ -573,7 +576,7 @@ class NetworkInterface_Decoder_and_Output_to_Processor extends Module {
 
 }
 
-class NetworkInterface(Current_Proc_Number: Int) extends Module {
+class NetworkInterface(Current_Proc_Number: UInt) extends Module {
   val io = new Bundle {
 
     /*IOs for Processor side Input*/

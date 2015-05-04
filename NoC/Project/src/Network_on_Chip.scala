@@ -9,57 +9,70 @@ import Router._
  */
 class Network_on_Chip extends Module {
   val io = new Bundle {
+    
+    /*Inputs for testing*/
+    val Input_Valid_Processor_4 = Bool(INPUT)
+    val Input_Processor_4          = UInt(INPUT,width=32)
+    val Destination_Address_Processor_4 = UInt(INPUT,width=4)
+    
+    val Input_Valid_Processor_5 = Bool(INPUT)
+    val Input_Processor_5          = UInt(INPUT,width=32)
+    val Destination_Address_Processor_5 = UInt(INPUT,width=4)
 
+ 
   }
 
-  val NetworkInterface_0 = Module(new NetworkInterface(0))
+  /*Router and Network Interface instantiation*/
+  val NetworkInterface_0 = Module(new NetworkInterface(UInt(0)))
   val Router_0 = Module(new Router)
   
-  val NetworkInterface_1 = Module(new NetworkInterface(1))
+  val NetworkInterface_1 = Module(new NetworkInterface(UInt(1)))
   val Router_1 = Module(new Router)
   
-  val NetworkInterface_2 = Module(new NetworkInterface(2))
+  val NetworkInterface_2 = Module(new NetworkInterface(UInt(2)))
   val Router_2 = Module(new Router)
   
-  val NetworkInterface_3 = Module(new NetworkInterface(3))
+  val NetworkInterface_3 = Module(new NetworkInterface(UInt(3)))
   val Router_3 = Module(new Router)
   
-  val NetworkInterface_4 = Module(new NetworkInterface(4))
+  val NetworkInterface_4 = Module(new NetworkInterface(UInt(4)))
   val Router_4 = Module(new Router)
   
-  val NetworkInterface_5 = Module(new NetworkInterface(5))
+  val NetworkInterface_5 = Module(new NetworkInterface(UInt(5)))
   val Router_5 = Module(new Router)
   
-  val NetworkInterface_6 = Module(new NetworkInterface(6))
+  val NetworkInterface_6 = Module(new NetworkInterface(UInt(6)))
   val Router_6 = Module(new Router)
   
-  val NetworkInterface_7 = Module(new NetworkInterface(7))
+  val NetworkInterface_7 = Module(new NetworkInterface(UInt(7)))
   val Router_7 = Module(new Router)
   
-  val NetworkInterface_8 = Module(new NetworkInterface(8))
+  val NetworkInterface_8 = Module(new NetworkInterface(UInt(8)))
   val Router_8 = Module(new Router)
   
-  val NetworkInterface_9 = Module(new NetworkInterface(9))
+  val NetworkInterface_9 = Module(new NetworkInterface(UInt(9)))
   val Router_9 = Module(new Router)
   
-  val NetworkInterface_10 = Module(new NetworkInterface(10))
+  val NetworkInterface_10 = Module(new NetworkInterface(UInt(10)))
   val Router_10 = Module(new Router)
   
-  val NetworkInterface_11 = Module(new NetworkInterface(11))
+  val NetworkInterface_11 = Module(new NetworkInterface(UInt(11)))
   val Router_11 = Module(new Router)
 
-  val NetworkInterface_12 = Module(new NetworkInterface(12))
+  val NetworkInterface_12 = Module(new NetworkInterface(UInt(12)))
   val Router_12 = Module(new Router)
   
-  val NetworkInterface_13 = Module(new NetworkInterface(13))
+  val NetworkInterface_13 = Module(new NetworkInterface(UInt(13)))
   val Router_13 = Module(new Router)
   
-  val NetworkInterface_14 = Module(new NetworkInterface(14))
+  val NetworkInterface_14 = Module(new NetworkInterface(UInt(14)))
   val Router_14 = Module(new Router)
   
-  val NetworkInterface_15 = Module(new NetworkInterface(15))
+  val NetworkInterface_15 = Module(new NetworkInterface(UInt(15)))
   val Router_15 = Module(new Router)
   
+  
+  /*CONNECTIONS*/
   
   //Router 0 - Network Interface 0
   //NI Output - Router Input
@@ -540,12 +553,29 @@ class Network_on_Chip extends Module {
   Router_11.io.Input_Port_2_Input           :=    Router_15.io.Output_Port_4_Output
   Router_15.io.Output_Port_4_ACK          :=    Router_11.io.Input_Port_2_Input_ACK
   Router_15.io.Output_Port_4_Ready       :=    Router_11.io.Input_Port_2_Input_Ready     
-    
+   
+  
+   /*Test assignments*/
+  NetworkInterface_4.io.Input_Processor :=  io.Input_Processor_4
+  NetworkInterface_4.io.Destination_Addr :=  io.Destination_Address_Processor_4
+  NetworkInterface_4.io.Input_Valid_Processor :=  io.Input_Valid_Processor_4
+  
+  NetworkInterface_5.io.Input_Processor :=  io.Input_Processor_5
+  NetworkInterface_5.io.Destination_Addr :=  io.Destination_Address_Processor_5
+  NetworkInterface_5.io.Input_Valid_Processor :=  io.Input_Valid_Processor_5
 }
 
 class Network_on_Chip_tests(c: Network_on_Chip) extends Tester(c) {
-
  
+    poke(c.io.Input_Valid_Processor_5, 1)
+    poke(c.io.Input_Processor_5, 67305985)  // Data Flit 1 = 1, Data Flit 2 = 2, Data Flit 3 = 3, Data Flit 4 = 4 
+    poke(c.io.Destination_Address_Processor_5, 8)
+
+    step(2)
+    poke(c.io.Input_Valid_Processor_5,0)
+    
+    step(1)
+    step(60)
  
 }
 
