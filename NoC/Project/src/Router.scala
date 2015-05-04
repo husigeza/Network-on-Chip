@@ -77,8 +77,7 @@ class Input_port extends Module {
     when(Input_Channel_Header_Flit_Full === UInt(1) && Transmission_ongoing === UInt(0)) {
       io.Data_Valid_to_Crossbar := UInt(1)
       Transmission_ongoing := UInt(1)
-      // Modify the coordinates before transmission according to XY  
-      when(Input_Channel_Header_Flit(7) === UInt(0)) {
+      // Modify the coordinates before transmission according to XY         
       when(Input_Channel_Header_Flit(6, 5) != UInt(0)) { //If X coords are not zero, decrease them by 1
         io.Data_Out := Cat(Input_Channel_Header_Flit(7), Input_Channel_Header_Flit(6, 5) - UInt(1), Input_Channel_Header_Flit(4), Input_Channel_Header_Flit(3, 2), Input_Channel_Header_Flit(1, 0))
       }
@@ -88,18 +87,7 @@ class Input_port extends Module {
         .otherwise { // This means X and Y coord are zeros, so leave them           
           io.Data_Out := Cat(Input_Channel_Header_Flit(7), Input_Channel_Header_Flit(6, 5), Input_Channel_Header_Flit(4), Input_Channel_Header_Flit(3, 2), Input_Channel_Header_Flit(1, 0))
         }
-      }
-      .otherwise {
-          when(Input_Channel_Header_Flit(3, 2) != UInt(0)) { //If Y coords are not zero, decrease them by 1
-            io.Data_Out := Cat(Input_Channel_Header_Flit(7), Input_Channel_Header_Flit(6, 5), Input_Channel_Header_Flit(4), Input_Channel_Header_Flit(3, 2) - UInt(1), Input_Channel_Header_Flit(1, 0))
-          }
-      .elsewhen(Input_Channel_Header_Flit(6, 5) != UInt(0)) { //If X coords are not zero, decrease them by 1
-        io.Data_Out := Cat(Input_Channel_Header_Flit(7), Input_Channel_Header_Flit(6, 5) - UInt(1), Input_Channel_Header_Flit(4), Input_Channel_Header_Flit(3, 2), Input_Channel_Header_Flit(1, 0))
-      }
-      .otherwise { // This means X and Y coord are zeros, so leave them           
-          io.Data_Out := Cat(Input_Channel_Header_Flit(7), Input_Channel_Header_Flit(6, 5), Input_Channel_Header_Flit(4), Input_Channel_Header_Flit(3, 2), Input_Channel_Header_Flit(1, 0))
-        }
-      }
+
     }
       .elsewhen(Input_Channel_Data_Flit_Full === UInt(1)) {
         io.Data_Valid_to_Crossbar := UInt(1)
@@ -538,149 +526,52 @@ class ArbiterUnit extends Module {
           }
 
       }
-      .elsewhen((X_reg(2) === UInt(1))) { //X coords not 0, X negative     -> IF first want to go to left, go UP/DOWN instead
-        when(Y_reg(0) != UInt(0) || Y_reg(1) != UInt(0)) {
-          when(Y_reg(2) === UInt(0)) {
-            // Output is Port4 (down)
-            when(io.Port1_enable === UInt(1)) {
-              io.Port4_output := io.Port1_input
-              io.Port1_to_input_Output_Ready := io.Port4_from_output_Output_Ready
-              io.Port4_to_output_Data_Valid := io.Port1_from_input_Data_Valid
-              io.Crossbar_ready := UInt(1)
-            }
-              .elsewhen(io.Port2_enable === UInt(1)) {
-                io.Port4_output := io.Port2_input
-                io.Port2_to_input_Output_Ready := io.Port4_from_output_Output_Ready
-                io.Port4_to_output_Data_Valid := io.Port2_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .elsewhen(io.Port3_enable === UInt(1)) {
-                io.Port4_output := io.Port3_input
-                io.Port3_to_input_Output_Ready := io.Port4_from_output_Output_Ready
-                io.Port4_to_output_Data_Valid := io.Port3_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .elsewhen(io.Port4_enable === UInt(1)) {
-                io.Port4_output := io.Port4_input
-                io.Port4_to_input_Output_Ready := io.Port4_from_output_Output_Ready
-                io.Port4_to_output_Data_Valid := io.Port4_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .elsewhen(io.PortP_enable === UInt(1)) {
-                io.Port4_output := io.PortP_input
-                io.PortP_to_input_Output_Ready := io.Port4_from_output_Output_Ready
-                io.Port4_to_output_Data_Valid := io.PortP_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .otherwise {
-                io.Port1_output := UInt(0)
-                io.Port2_output := UInt(0)
-                io.Port3_output := UInt(0)
-                io.Port4_output := UInt(0)
-                io.PortP_output := UInt(0)
-                io.Port1_to_input_Output_Ready := UInt(0)
-                io.Port2_to_input_Output_Ready := UInt(0)
-                io.Port3_to_input_Output_Ready := UInt(0)
-                io.Port4_to_input_Output_Ready := UInt(0)
-                io.PortP_to_input_Output_Ready := UInt(0)
-                io.Port4_to_output_Data_Valid := UInt(0)
-                io.Crossbar_ready := UInt(0)
-              }
-          }
-            .elsewhen(Y_reg(2) === UInt(1)) {
-              // Output is Port2 (up)
-              when(io.Port1_enable === UInt(1)) {
-                io.Port2_output := io.Port1_input
-                io.Port1_to_input_Output_Ready := io.Port2_from_output_Output_Ready
-                io.PortP_to_output_Data_Valid := io.Port1_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-                .elsewhen(io.Port2_enable === UInt(1)) {
-                  io.Port2_output := io.Port2_input
-                  io.Port2_to_input_Output_Ready := io.Port2_from_output_Output_Ready
-                  io.Port2_to_output_Data_Valid := io.Port2_from_input_Data_Valid
-                  io.Crossbar_ready := UInt(1)
-                }
-                .elsewhen(io.Port3_enable === UInt(1)) {
-                  io.Port2_output := io.Port3_input
-                  io.Port3_to_input_Output_Ready := io.Port2_from_output_Output_Ready
-                  io.Port2_to_output_Data_Valid := io.Port3_from_input_Data_Valid
-                  io.Crossbar_ready := UInt(1)
-                }
-                .elsewhen(io.Port4_enable === UInt(1)) {
-                  io.Port2_output := io.Port4_input
-                  io.Port4_to_input_Output_Ready := io.Port2_from_output_Output_Ready
-                  io.Port2_to_output_Data_Valid := io.Port4_from_input_Data_Valid
-                  io.Crossbar_ready := UInt(1)
-                }
-                .elsewhen(io.PortP_enable === UInt(1)) {
-                  io.Port2_output := io.PortP_input
-                  io.PortP_to_input_Output_Ready := io.Port2_from_output_Output_Ready
-                  io.Port2_to_output_Data_Valid := io.PortP_from_input_Data_Valid
-                  io.Crossbar_ready := UInt(1)
-                }
-                .otherwise {
-                  io.Port1_output := UInt(0)
-                  io.Port2_output := UInt(0)
-                  io.Port3_output := UInt(0)
-                  io.Port4_output := UInt(0)
-                  io.PortP_output := UInt(0)
-                  io.Port1_to_input_Output_Ready := UInt(0)
-                  io.Port2_to_input_Output_Ready := UInt(0)
-                  io.Port3_to_input_Output_Ready := UInt(0)
-                  io.Port4_to_input_Output_Ready := UInt(0)
-                  io.PortP_to_input_Output_Ready := UInt(0)
-                  io.Port2_to_output_Data_Valid := UInt(0)
-                  io.Crossbar_ready := UInt(0)
-                }
-            }
+      .elsewhen((X_reg(2) === UInt(1))) { //X coords not 0, X negative
+
+        // Output is Port1 (left)
+        when(io.Port1_enable === UInt(1)) {
+          io.Port1_output := io.Port1_input
+          io.Port1_to_input_Output_Ready := io.Port1_from_output_Output_Ready
+          io.Port1_to_output_Data_Valid := io.Port1_from_input_Data_Valid
+          io.Crossbar_ready := UInt(1)
         }
+          .elsewhen(io.Port2_enable === UInt(1)) {
+            io.Port1_output := io.Port2_input
+            io.Port2_to_input_Output_Ready := io.Port1_from_output_Output_Ready
+            io.Port1_to_output_Data_Valid := io.Port2_from_input_Data_Valid
+            io.Crossbar_ready := UInt(1)
+          }
+          .elsewhen(io.Port3_enable === UInt(1)) {
+            io.Port1_output := io.Port3_input
+            io.Port3_to_input_Output_Ready := io.Port1_from_output_Output_Ready
+            io.Port1_to_output_Data_Valid := io.Port3_from_input_Data_Valid
+            io.Crossbar_ready := UInt(1)
+          }
+          .elsewhen(io.Port4_enable === UInt(1)) {
+            io.Port1_output := io.Port4_input
+            io.Port4_to_input_Output_Ready := io.Port1_from_output_Output_Ready
+            io.Port1_to_output_Data_Valid := io.Port4_from_input_Data_Valid
+            io.Crossbar_ready := UInt(1)
+          }
+          .elsewhen(io.PortP_enable === UInt(1)) {
+            io.Port1_output := io.PortP_input
+            io.PortP_to_input_Output_Ready := io.Port1_from_output_Output_Ready
+            io.Port1_to_output_Data_Valid := io.PortP_from_input_Data_Valid
+            io.Crossbar_ready := UInt(1)
+          }
           .otherwise {
-            // Output is Port1 (left)
-            when(io.Port1_enable === UInt(1)) {
-              io.Port1_output := io.Port1_input
-              io.Port1_to_input_Output_Ready := io.Port1_from_output_Output_Ready
-              io.Port1_to_output_Data_Valid := io.Port1_from_input_Data_Valid
-              io.Crossbar_ready := UInt(1)
-            }
-              .elsewhen(io.Port2_enable === UInt(1)) {
-                io.Port1_output := io.Port2_input
-                io.Port2_to_input_Output_Ready := io.Port1_from_output_Output_Ready
-                io.Port1_to_output_Data_Valid := io.Port2_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .elsewhen(io.Port3_enable === UInt(1)) {
-                io.Port1_output := io.Port3_input
-                io.Port3_to_input_Output_Ready := io.Port1_from_output_Output_Ready
-                io.Port1_to_output_Data_Valid := io.Port3_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .elsewhen(io.Port4_enable === UInt(1)) {
-                io.Port1_output := io.Port4_input
-                io.Port4_to_input_Output_Ready := io.Port1_from_output_Output_Ready
-                io.Port1_to_output_Data_Valid := io.Port4_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .elsewhen(io.PortP_enable === UInt(1)) {
-                io.Port1_output := io.PortP_input
-                io.PortP_to_input_Output_Ready := io.Port1_from_output_Output_Ready
-                io.Port1_to_output_Data_Valid := io.PortP_from_input_Data_Valid
-                io.Crossbar_ready := UInt(1)
-              }
-              .otherwise {
-                io.Port1_output := UInt(0)
-                io.Port2_output := UInt(0)
-                io.Port3_output := UInt(0)
-                io.Port4_output := UInt(0)
-                io.PortP_output := UInt(0)
-                io.Port1_to_input_Output_Ready := UInt(0)
-                io.Port2_to_input_Output_Ready := UInt(0)
-                io.Port3_to_input_Output_Ready := UInt(0)
-                io.Port4_to_input_Output_Ready := UInt(0)
-                io.PortP_to_input_Output_Ready := UInt(0)
-                io.Port1_to_output_Data_Valid := UInt(0)
-                io.Crossbar_ready := UInt(0)
-              }
+            io.Port1_output := UInt(0)
+            io.Port2_output := UInt(0)
+            io.Port3_output := UInt(0)
+            io.Port4_output := UInt(0)
+            io.PortP_output := UInt(0)
+            io.Port1_to_input_Output_Ready := UInt(0)
+            io.Port2_to_input_Output_Ready := UInt(0)
+            io.Port3_to_input_Output_Ready := UInt(0)
+            io.Port4_to_input_Output_Ready := UInt(0)
+            io.PortP_to_input_Output_Ready := UInt(0)
+            io.Port1_to_output_Data_Valid := UInt(0)
+            io.Crossbar_ready := UInt(0)
           }
       }
       .otherwise {
