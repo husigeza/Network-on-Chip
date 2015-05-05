@@ -18,6 +18,10 @@ class Network_on_Chip extends Module {
     val Input_Valid_Processor_5 = Bool(INPUT)
     val Input_Processor_5          = UInt(INPUT,width=32)
     val Destination_Address_Processor_5 = UInt(INPUT,width=4)
+    
+    val Input_Valid_Processor_12 = Bool(INPUT)
+    val Input_Processor_12          = UInt(INPUT,width=32)
+    val Destination_Address_Processor_12 = UInt(INPUT,width=4)
 
  
   }
@@ -277,7 +281,7 @@ class Network_on_Chip extends Module {
   *                                  |__|
   *                                  Port 4
   *                                                  
-  *                     12 - 13 -- 14 --5   
+  *                     12 - 13 -- 14 --15   
   *                     |       |       |      |
   *                     8 --- 9 ---10 --11   
   *                     |       |       |      |
@@ -563,19 +567,33 @@ class Network_on_Chip extends Module {
   NetworkInterface_5.io.Input_Processor :=  io.Input_Processor_5
   NetworkInterface_5.io.Destination_Addr :=  io.Destination_Address_Processor_5
   NetworkInterface_5.io.Input_Valid_Processor :=  io.Input_Valid_Processor_5
+  
+  NetworkInterface_12.io.Input_Processor :=  io.Input_Processor_12
+  NetworkInterface_12.io.Destination_Addr :=  io.Destination_Address_Processor_12
+  NetworkInterface_12.io.Input_Valid_Processor :=  io.Input_Valid_Processor_12
 }
 
 class Network_on_Chip_tests(c: Network_on_Chip) extends Tester(c) {
  
     poke(c.io.Input_Valid_Processor_5, 1)
     poke(c.io.Input_Processor_5, 67305985)  // Data Flit 1 = 1, Data Flit 2 = 2, Data Flit 3 = 3, Data Flit 4 = 4 
-    poke(c.io.Destination_Address_Processor_5, 12)
+    poke(c.io.Destination_Address_Processor_5, 3)
+    
+    poke(c.io.Input_Valid_Processor_4, 1)
+    poke(c.io.Input_Processor_4, 0xDDCCBBAA)  
+    poke(c.io.Destination_Address_Processor_4, 13)
+    
+    poke(c.io.Input_Valid_Processor_12, 1)
+    poke(c.io.Input_Processor_12, 0x0605) 
+    poke(c.io.Destination_Address_Processor_12, 6)
 
     step(2)
     poke(c.io.Input_Valid_Processor_5,0)
+    poke(c.io.Input_Valid_Processor_4,0)
+    poke(c.io.Input_Valid_Processor_12,0)
     
     step(1)
-    step(60)
+    step(80)
  
 }
 
