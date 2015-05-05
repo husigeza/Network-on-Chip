@@ -446,7 +446,7 @@ class ArbiterUnit extends Module {
           when(io.Port1_enable === UInt(1)) {
             io.Port2_output := io.Port1_input
             io.Port1_to_input_Output_Ready := io.Port2_from_output_Output_Ready
-            io.PortP_to_output_Data_Valid := io.Port1_from_input_Data_Valid
+            io.Port2_to_output_Data_Valid := io.Port1_from_input_Data_Valid
             io.Crossbar_ready := UInt(1)
           }
             .elsewhen(io.Port2_enable === UInt(1)) {
